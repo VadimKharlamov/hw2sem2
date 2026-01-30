@@ -1,0 +1,28 @@
+replicaCount: 1
+
+image:
+  repository: kharlamovvadim/muffin-currency
+  tag: "1.2.0"
+  pullPolicy: Always
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: "muffin-currency.com"
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+env:
+  - name: SERVER_PORT
+    value: "8080"

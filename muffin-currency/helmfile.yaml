@@ -1,0 +1,17 @@
+repositories:
+  - name: stable
+    url: https://charts.helm.sh/stable
+
+releases:
+  - name: muffin-currency
+    namespace: default
+    chart: .
+    values:
+      - values.yaml
+
+helmDefaults:
+  wait: true
+  timeout: 450
+  recreatePods: false
+  force: false
+  atomic: true
