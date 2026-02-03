@@ -1,0 +1,51 @@
+promtail:
+  enabled: true
+  config:
+    clients:
+      - url: http://loki.logging.svc.cluster.local:3100/loki/api/v1/push
+
+    snippets:
+      pipelineStages:
+        - match:
+            selector: '{app="muffin-wallet"}'
+            stages:
+              - json:
+                  expressions:
+                    log: log
+
+              - regex:
+                  source: log
+                  expression: '\[(?P<traceId>[a-f0-9]+)-(?P<spanId>[a-f0-9]+)\]'
+
+              - regex:
+                  source: log
+                  expression: '^\S+\s+(?P<logLevel>INFO|WARN|ERROR)'
+
+              - labels:
+                  logLevel:
+                  traceId:
+                  spanId:
+
+        - match:
+            selector: '{app="muffin-currency"}'
+            stages:
+              - json:
+                  expressions:
+                    log: log
+
+              - json:
+                  source: log
+                  expressions:
+                    logLevel: level
+                    traceId: trace_id
+
+              - labels:
+                  logLevel:
+                  traceId:
+grafana:
+  enabled: true
+  service:
+    type: NodePort
+loki:
+  persistence:
+    enabled: false

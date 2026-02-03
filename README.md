@@ -24,6 +24,16 @@ helm upgrade --install loki grafana/loki-stack \
   --set loki.persistence.enabled=false \
   --set "promtail.config.clients[0].url=http://loki.logging.svc.cluster.local:3100/loki/api/v1/push"
 
+helm upgrade --install loki grafana/loki \      
+  --namespace logging \
+  --create-namespace \
+  -f promtail.yaml    
+
+Пароль от графаны можно узнать так
+
+kubectl get secret --namespace logging loki-grafana \
+  -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
 Запустить zipkin
 
 helm repo add openzipkin https://openzipkin.github.io/zipkin
@@ -117,9 +127,9 @@ func tracingMiddleware(next http.Handler) http.Handler {
 
 Для быстрого переключения добавил переменные LEVEL и TraceID
 
-В Loki query указываем
+В Loki query указываем, таким образом вы вытащим нужные нам label для фильтрации по уровню логов и traceID
 
-`{app="muffin-wallet"} |~ "$LEVEL"`
+`{app="muffin-wallet", logLevel = "$LEVEL"}`
 
 ![](/img/loki1.png "")
 
@@ -129,13 +139,11 @@ func tracingMiddleware(next http.Handler) http.Handler {
 
 Для muffin-currency аналогично
 
-`{app="muffin-currency"} |~ "$LEVEL"`
+`{app="muffin-currency", logLevel = "$LEVEL"}`
 
 ![](/img/loki3.png "")
 
 и аналогично может смотреть по уровню логов через переменные
-
-Можно также выбирать несколько уровней сразу
 
 ![](/img/loki_ex.png "")
 
@@ -175,6 +183,18 @@ http://muffin-wallet.com/v1/muffin-wallet/e7374ea8-329c-4cb8-98d5-524167a0220a/t
 Как мы видим это логи одного трейса
 
 ![](/img/zip7.png "")
+
+Помимо стандартных лейблов собираем уровень логов и traceID/spanId
+
+![](/img/label1.png "")
+
+![](/img/label2.png "")
+
+и используем запросы
+
+`{app="muffin-currency", logLevel = "$LEVEL", traceId = "$TraceID"}`
+
+`{app="muffin-wallet", logLevel = "$LEVEL", traceId = "$TraceID"}`
 
 Все логи/трейсы тестировались на ручках
 
