@@ -131,7 +131,7 @@ func tracingMiddleware(next http.Handler) http.Handler {
 
 `{app="muffin-wallet", logLevel = "$LEVEL"}`
 
-![](/img/loki1.png "")
+![](/img/loki1_n.png "")
 
 Для смены например на WARN логи просто меняем level 
 
@@ -141,7 +141,7 @@ func tracingMiddleware(next http.Handler) http.Handler {
 
 `{app="muffin-currency", logLevel = "$LEVEL"}`
 
-![](/img/loki3.png "")
+![](/img/loki3_n.png "")
 
 и аналогично может смотреть по уровню логов через переменные
 
